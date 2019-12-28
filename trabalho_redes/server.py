@@ -15,19 +15,23 @@ address = ("localhost", 20000)
 
 #manages each thread received
 def thread_management(server_input, word, or_word):
-	
-	print_word(word)
+	life_counter = 6
 	while True:
 		response = server_input.recv(1024)
 		response = response.rstrip()
-		if (response.decode() != "sair"):
+		if response.decode() != "sair":
 			print("Mensagem do cliente:", response.decode())			
 			if response.decode() in or_word:
 				for i in range(0, len(or_word)):
 					if response.decode() is or_word[i]:
 						word[i] = or_word[i]			
 			else:
-				print('-1')	
+				life_counter = life_counter - 1
+				print(life_counter)	
+			if life_counter == 0:
+				print('GAME OVER')
+				server_input.close()
+				break		
 			print_word(word)				
 		else:
 			server_input.close()
@@ -45,6 +49,7 @@ print('Dica:', files[i][0:-4])
 w = []
 for i in range(0, len(word)):
 	w.append('_')	
+print_word(w)	
 
 # Create sockets
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
