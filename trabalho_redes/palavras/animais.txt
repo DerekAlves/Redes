@@ -1,4 +1,0 @@
-arara
-cachorro
-papagaio
-onça
