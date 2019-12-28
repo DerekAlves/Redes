@@ -2,7 +2,9 @@
 
 import socket
 import threading
-
+import os
+import random
+import linecache
 
 def print_word(word):
 	for letter in word:
@@ -30,7 +32,19 @@ def thread_management(server_input, word, or_word):
 		else:
 			server_input.close()
 			break
-	
+
+path = './palavras/'
+files = os.listdir(path)
+i = random.choice((0,len(files)-1))
+file_name = path + files[i]
+f = open(file_name, 'r')
+line_number = random.choice((1,sum(1 for line in f)))
+word = linecache.getline(file_name, line_number)[0:-1]
+print('Dica:', files[i][0:-4])
+
+w = []
+for i in range(0, len(word)):
+	w.append('_')	
 
 # Create sockets
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,14 +52,6 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Connect sockets
 server_socket.bind(address)
 server_socket.listen(15)
-
-f = open('./palavras.txt', 'r')
-word = f.readlines()[0][0:-1]
-print(word)
-
-w = []
-for i in range(0, len(word)):
-	w.append('_')	
 
 # Print
 while True:
