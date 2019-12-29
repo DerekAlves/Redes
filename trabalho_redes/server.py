@@ -11,6 +11,17 @@ def print_word(word):
 		print(letter, end = " ")
 	print('\n')		
 
+def print_hagman(life_counter):
+	prints =   [" _____________\n|      |      |\n|             |\n|             |\n|             |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|             |\n|             |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|      |      |\n|             |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|     /|      |\n|             |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|     /|\\     |\n|             |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|     /|\\     |\n|     /       |\n|             |\n|_____________|\n"
+	           ," _____________\n|      |      |\n|      O      |\n|     /|\\     |\n|     / \\     |\n|             |\n|_____________|\n"]
+
+	print(prints[6 - life_counter], "\n")
+
 address = ("localhost", 20000)
 
 #manages each thread received
@@ -30,8 +41,15 @@ def thread_management(server_input, word, or_word):
 				print(life_counter)	
 			if life_counter == 0:
 				print('GAME OVER')
+				print_hagman(life_counter)
 				server_input.close()
-				break		
+				break	
+			if '_' not in word:
+				print('YOU WIN!')
+				print_word(word)
+				server_input.close()
+				break	
+			print_hagman(life_counter)		
 			print_word(word)				
 		else:
 			server_input.close()
