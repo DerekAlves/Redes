@@ -25,35 +25,41 @@ def print_hagman(life_counter):
 address = ("localhost", 20000)
 
 #manages each thread received
-def thread_management(server_input, word, or_word):
+def thread_management(server_input, word, or_word, list_server_input, index, shift):
 	life_counter = 6
-	while True:
-		response = server_input.recv(1024)
-		response = response.rstrip()
-		if response.decode() != "sair":
-			print("Mensagem do cliente:", response.decode())			
-			if response.decode() in or_word:
-				for i in range(0, len(or_word)):
-					if response.decode() is or_word[i]:
-						word[i] = or_word[i]			
+	if list_server_input[shift] == server_input:
+		while True:
+			print(shift)
+			response = server_input.recv(1024)
+			response = response.rstrip()
+			if response.decode() != "sair":
+				print("Mensagem do cliente:", response.decode())			
+				if response.decode() in or_word:
+					for i in range(0, len(or_word)):
+						if response.decode() is or_word[i]:
+							word[i] = or_word[i]	
+					shift = (shift+1)%index					
+				else:
+					life_counter = life_counter - 1
+					print(life_counter)	
+					shift = (shift+1)%index	
+				if life_counter == 0:
+					print('GAME OVER')
+					print_hagman(life_counter)
+					server_input.close()
+					break	
+				if '_' not in word:
+					print('YOU WIN!')
+					print_word(word)
+					server_input.close()
+					break	
+				print_hagman(life_counter)		
+				print_word(word)			
 			else:
-				life_counter = life_counter - 1
-				print(life_counter)	
-			if life_counter == 0:
-				print('GAME OVER')
-				print_hagman(life_counter)
 				server_input.close()
-				break	
-			if '_' not in word:
-				print('YOU WIN!')
-				print_word(word)
-				server_input.close()
-				break	
-			print_hagman(life_counter)		
-			print_word(word)				
-		else:
-			server_input.close()
-			break
+				break		
+	else:
+		pass		
 
 path = './palavras/'
 files = os.listdir(path)
@@ -77,11 +83,18 @@ server_socket.bind(address)
 server_socket.listen(15)
 
 # Print
+i = 0
+list_server_input = []
+shift = 0
 while True:
 	server_input, address = server_socket.accept()
-	print("Nova conexao recebida de ", address)
-	thread = threading.Thread(target = thread_management, args = (server_input, w, word))
-	thread.start()
+	if i < 5:
+		list_server_input.append(server_input)
+		print("Nova conexao recebida de ", address)
+		thread = threading.Thread(target = thread_management, args = (server_input, w, word, list_server_input, i+1, shift))
+		thread.start()
+		i = i+1
+
 
 
 
