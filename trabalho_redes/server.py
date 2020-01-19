@@ -32,51 +32,70 @@ shift = 0
 index = 0
 life_counter = 6
 #manages each thread received
-def thread_management(server_input, word, or_word, list_server_input):
+def thread_management(server_input, word, or_word, list_server_input, tip):
 	global life_counter
 	global shift
 	global index
 	global prints
+	lshift = 0
 	flag = True
-	textRecv = "Recebido!"
-	textGO = "GAME OVER"
-	textYW = "YOU WIN!"
+	youTurn = 'Seu turno'
+	wait =  'Aguarde seu turno'
+	textGO = "Fim de jogo"
+	textYW = "Vocês ganharam!"
+
+	server_input.sendall(tip.encode("utf-8"))
+	time.sleep(.015)
+
 	while flag:
+		
+		lshift = shift
 		life_str =  str(life_counter)
 		server_input.sendall(life_str.encode('utf-8'))
-		response = server_input.recv(1024)
-		response = response.rstrip()
-		if list_server_input[shift] == server_input and response.decode() != 'sair':
-			print("Mensagem do cliente:", response.decode())	
-			if response.decode() in or_word and response.decode() not in word:
+		time.sleep(.015)
+
+		state = str(word)
+		server_input.sendall(state.encode("utf-8"))
+		time.sleep(.015)
+
+		if life_counter == 0:
+			print(textGO)
+			print_hangman(life_counter)
+			server_input.sendall(textGO.encode('utf-8'))
+			flag = False	
+		elif '_' not in word:
+			print(textYW)
+			print_word(word)
+			server_input.sendall(textYW.encode('utf-8'))
+			flag = False		
+
+		elif list_server_input[shift] == server_input:
+			server_input.sendall(youTurn.encode('utf-8'))
+			response = server_input.recv(1024)
+			response = response.rstrip()
+			print("Mensagem do cliente:", response.decode())
+			if response.decode() == 'sair':
+				print('saiu alguém')
+				list_server_input.remove(server_input)
+				index = index-1
+				shift = ((shift + 10) % index);
+				flag = False		
+			elif response.decode() in or_word and response.decode() not in word:
 				for i in range(0, len(or_word)):
 					if response.decode() is or_word[i]:
 						word[i] = or_word[i]	
 			else:
 				life_counter = life_counter - 1
-				print(life_counter)		
-			if life_counter == 0:
-				print('GAME OVER')
-				print_hangman(life_counter)
-				server_input.sendall(textGO.encode('utf-8'))
-				flag = False
-				break	
-			if '_' not in word:
-				print('YOU WIN!')
-				print_word(word)
-				server_input.sendall(textYW.encode('utf-8'))
-				flag = False
-				break		
+
+
 			shift = (shift+1)%index
 			print_hangman(life_counter)		
-			print_word(word)				
-		elif response.decode() == 'sair':
-			print('saiu alguém')
-			list_server_input.remove(server_input)
-			index = index-1	
-			flag = False
-			break	
-		#if index == shift:
+			print_word(word)
+		else:
+			server_input.sendall(wait.encode('utf-8'))
+			while lshift == shift:
+					time.sleep(1)
+	
 	time.sleep(.015)
 	life_str = str(life_counter)
 	server_input.sendall(life_str.encode('utf-8'))
@@ -92,6 +111,7 @@ f = open(file_name, 'r')
 line_number = random.choice((1,sum(1 for line in f)))
 word = linecache.getline(file_name, line_number)[0:-1]
 print('Dica:', files[i][0:-4])
+tip = files[i][0:-4]
 
 w = []
 for i in range(0, len(word)):
@@ -112,11 +132,6 @@ while True:
 	if index < 5:
 		list_server_input.append(server_input)
 		print("Nova conexao recebida de ", address)
-		thread = threading.Thread(target = thread_management, args = (server_input, w, word, list_server_input))
+		thread = threading.Thread(target = thread_management, args = (server_input, w, word, list_server_input, tip))
 		thread.start()
 		index = index+1
-
-
-
-
-#if list_server_input[shift] == server_input:
