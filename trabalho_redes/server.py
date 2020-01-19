@@ -5,13 +5,17 @@ import threading
 import os
 import random
 import linecache
+import time
+
+
 
 def print_word(word):
 	for letter in word:
 		print(letter, end = " ")
 	print('\n')		
 
-def print_hagman(life_counter):
+def print_hangman(life_counter):
+	
 	prints =   [" _____________\n|      |      |\n|             |\n|             |\n|             |\n|             |\n|_____________|\n"
 	           ," _____________\n|      |      |\n|      O      |\n|             |\n|             |\n|             |\n|_____________|\n"
 	           ," _____________\n|      |      |\n|      O      |\n|      |      |\n|             |\n|             |\n|_____________|\n"
@@ -32,15 +36,19 @@ def thread_management(server_input, word, or_word, list_server_input):
 	global life_counter
 	global shift
 	global index
+	global prints
 	flag = True
+	textRecv = "Recebido!"
+	textGO = "GAME OVER"
+	textYW = "YOU WIN!"
 	while flag:
-		print(shift)
+		life_str =  str(life_counter)
+		server_input.sendall(life_str.encode('utf-8'))
 		response = server_input.recv(1024)
 		response = response.rstrip()
 		if list_server_input[shift] == server_input and response.decode() != 'sair':
-			print(list_server_input)
 			print("Mensagem do cliente:", response.decode())	
-			if response.decode() in or_word:
+			if response.decode() in or_word and response.decode() not in word:
 				for i in range(0, len(or_word)):
 					if response.decode() is or_word[i]:
 						word[i] = or_word[i]	
@@ -49,26 +57,32 @@ def thread_management(server_input, word, or_word, list_server_input):
 				print(life_counter)		
 			if life_counter == 0:
 				print('GAME OVER')
-				print_hagman(life_counter)
-				server_input.close()
+				print_hangman(life_counter)
+				server_input.sendall(textGO.encode('utf-8'))
+				flag = False
 				break	
 			if '_' not in word:
 				print('YOU WIN!')
 				print_word(word)
-				server_input.close()
+				server_input.sendall(textYW.encode('utf-8'))
+				flag = False
 				break		
 			shift = (shift+1)%index
-			print_hagman(life_counter)		
+			print_hangman(life_counter)		
 			print_word(word)				
 		elif response.decode() == 'sair':
 			print('saiu alguém')
-			server_input.close()
-			del list_server_input[shift]
+			list_server_input.remove(server_input)
 			index = index-1	
 			flag = False
 			break	
 		#if index == shift:
-			#break				
+	time.sleep(.015)
+	life_str = str(life_counter)
+	server_input.sendall(life_str.encode('utf-8'))
+	server_input.close()		#break	
+
+#########################################################			
 
 path = './palavras/'
 files = os.listdir(path)
