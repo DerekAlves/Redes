@@ -1,7 +1,0 @@
-arara
-alemanha
-russia
-brasil
-cachorro
-uva
-abacate
