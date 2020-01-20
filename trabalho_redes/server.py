@@ -31,13 +31,15 @@ shift = 0
 index = 0
 life_counter = 6
 end = False
+list_server_input = []
 #manages each thread received
-def thread_management(server_input, list_server_input, word, or_word, tip):
+def thread_management(server_input, word, or_word, tip):
 	global life_counter
 	global shift
 	global index
 	global prints
 	global end
+	global list_server_input
 
 	lshift = 0
 	flag = True
@@ -45,6 +47,8 @@ def thread_management(server_input, list_server_input, word, or_word, tip):
 	wait =  'Aguarde seu turno'
 	textGO = "Fim de jogo"
 	textYW = "Vocês ganharam!"
+
+	#print(index, shift)
 
 	server_input.sendall(tip.encode("utf-8"))
 	time.sleep(.050)
@@ -74,15 +78,16 @@ def thread_management(server_input, list_server_input, word, or_word, tip):
 			end = True		
 
 		elif list_server_input[shift] == server_input:
+			#print(shift)
 			server_input.sendall(youTurn.encode('utf-8'))
 			response = server_input.recv(1024)
 			response = response.rstrip()
 			print("Mensagem do cliente:", response.decode())
 			if response.decode() == 'sair':
-				print('saiu alguém')
+				print('Um jogador deixou a sala!')
 				list_server_input.remove(server_input)
 				index = index-1
-				shift = ((shift + 10) % index);
+				shift = shift-1
 				flag = False		
 			elif response.decode() in or_word and response.decode() not in word:
 				for i in range(0, len(or_word)):
@@ -91,15 +96,17 @@ def thread_management(server_input, list_server_input, word, or_word, tip):
 			else:
 				life_counter = life_counter - 1
 
-
-			shift = (shift+1)%index
 			print_hangman(life_counter)		
 			print_word(word)
+			if(index != 0):
+				shift = (shift+1)%index
+			#print(shift)
 		else:
 			server_input.sendall(wait.encode('utf-8'))
-			while lshift == shift:
+			while lshift == shift and index > 1:
 					time.sleep(1)
-	
+	if index == 0 :
+		end = True
 	time.sleep(.200)
 	life_str = str(life_counter)
 	server_input.sendall(life_str.encode('utf-8'))
@@ -133,16 +140,15 @@ server_socket.listen(15)
 server_socket.settimeout(5)
 
 # Print
-list_server_input = []
+print('Aguardando conexao para iniciar o jogo, ao fim do jogo o processo será encerrado!')
 while not end:
 	try:
 		server_input, address = server_socket.accept()
 		if index < 5 :
 			list_server_input.append(server_input)
 			print("Nova conexao recebida de ", address)
-			thread = threading.Thread(target = thread_management, args = (server_input, list_server_input, w, word, tip))
+			thread = threading.Thread(target = thread_management, args = (server_input, w, word, tip))
 			thread.start()
 			index = index+1
 	except socket.timeout:
-		#print("EXCEPTION\n")
 		pass	
