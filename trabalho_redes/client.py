@@ -20,7 +20,12 @@ def print_hangman(life_counter):
 
     print(prints[6 - life_counter], "\n")
 
-address = ("localhost", 20000)
+local = 'localhost'
+msg = input("1 para localhost ou forneça um IP válido para conectar a um servidor: ")
+if msg != '1':
+	local = msg
+
+address = (local, 20000)
 
 # Create sockets
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
