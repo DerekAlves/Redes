@@ -12,13 +12,13 @@ Obs: Para rodar o servidor, o arquivo server.py precisa estar no mesmo diretóri
      O servidor está limitado a 5 conexões de clientes com uso de Threads, mais conexões podem ser abertas com uma pequena alteração no código.
 
 CLIENTE:
-Para rodar o servidor: $python3 client.py
+Para rodar o cliente: $python3 client.py
 
 Não é necessário arquivos extras para a execução do cliente.
 
 Ao executar, será apresentada a seguinte mensagem:
   "1 para localhost ou forneça um IP válido para conectar a um servidor: "
-Para se conectar o cliente a um servidor que esteja operando em outra máquina, ambos devem estar conectado à mesma rede.
+Para se conectar o cliente a um servidor que esteja operando em outra máquina, ambos devem estar conectados à mesma rede, ou o encaminhamento de portas feito corretamente (Não testado).
 Após conectar cliente, será apresentada a dica:
   Ex: "Dica: País"
 E o estado do jogo.
