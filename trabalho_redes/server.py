@@ -48,7 +48,7 @@ def thread_management(server_input, word, or_word, tip):
 	textGO = "Fim de jogo"
 	textYW = "Vocês ganharam!"
 
-	#print(index, shift)
+	print(index, shift)
 
 	server_input.sendall(tip.encode("utf-8"))
 	time.sleep(.050)
@@ -82,7 +82,7 @@ def thread_management(server_input, word, or_word, tip):
 			server_input.sendall(youTurn.encode('utf-8'))
 			response = server_input.recv(1024)
 			response = response.rstrip()
-			print("Mensagem do cliente:", response.decode())
+			print("Mensagem do jogador:", response.decode())
 			if response.decode() == 'sair':
 				print('Um jogador deixou a sala!')
 				list_server_input.remove(server_input)
@@ -100,11 +100,13 @@ def thread_management(server_input, word, or_word, tip):
 			print_word(word)
 			if(index != 0):
 				shift = (shift+1)%index
-			#print(shift)
+			print(shift)
 		else:
 			server_input.sendall(wait.encode('utf-8'))
 			while lshift == shift and index > 1:
 					time.sleep(1)
+					if(list_server_input[shift] == server_input):
+						break
 	if index == 0 :
 		end = True
 	time.sleep(.200)

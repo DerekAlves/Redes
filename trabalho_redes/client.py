@@ -60,7 +60,7 @@ while flag:
     if response == 'Fim de jogo' or response == 'Vocês ganharam!':
         flag = False
     elif 'Seu turno' in response:
-        text = input("Informe texto ou digite 'sair' para desconectar: " )
+        text = input("Informe texto ou digite 'sair' para desconectar: " ).lower()
         if text == 'sair':
             flag = False
         client_socket.sendall(text.encode('utf-8'))
